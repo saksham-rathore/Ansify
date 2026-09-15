@@ -133,11 +133,7 @@ body {
     linear-gradient(#fff 0 0);
 
   -webkit-mask-composite: xor;
-
   mask-composite: exclude;
-
-  animation: spin 6s linear infinite;
-
   opacity: 0.75;
 }
 

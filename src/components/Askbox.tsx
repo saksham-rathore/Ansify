@@ -74,7 +74,6 @@ export default function AskBox() {
                 <circle cx="8.5" cy="8.5" r="1.5" />
                 <path d="M21 15l-5-5L5 21" />
               </svg>
-
               General
             </button>
 
@@ -91,7 +90,6 @@ export default function AskBox() {
                 <path d="M12 1a4 4 0 0 0-4 4v6a4 4 0 0 0 8 0V5a4 4 0 0 0-4-4z" />
                 <path d="M19 10v1a7 7 0 0 1-14 0v-1M12 18v4" />
               </svg>
-
               Voice
             </button>
           </div>
