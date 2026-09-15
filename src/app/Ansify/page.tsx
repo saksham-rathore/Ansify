@@ -1,7 +1,9 @@
-export const Ansify = async () => {
+import BotInterface from "@/components/bot";
+
+export default async function Ansify() {
   return (
     <>
-      Ansify
+    <BotInterface />
     </>
   );
-};
+}
