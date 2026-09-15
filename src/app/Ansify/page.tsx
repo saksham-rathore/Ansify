@@ -1,9 +1,13 @@
-import BotInterface from "@/components/bot";
+import Navbar from "@/components/Navbar";
+import Hero from "@/components/Hero";
 
-export default async function Ansify() {
+export default function Ansify() {
   return (
-    <>
-    <BotInterface />
-    </>
+    <main className="stage">
+      <div className="veil" />
+
+      <Navbar />
+      <Hero />
+    </main>
   );
 }
