@@ -9,7 +9,7 @@ export async function POST(req: Request) {
       body: {
         email,
         password,
-        callbackURL: "/home",
+        callbackURL: "/Ansify",
       },
       asResponse: true,
     });

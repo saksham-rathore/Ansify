@@ -10,7 +10,7 @@ export async function POST(req: Request) {
         name,
         email,
         password,
-        callbackURL: "/home",
+        callbackURL: "/Ansify",
       },
       // Pass the request if auth.api needs to read/set headers
       asResponse: true,
