@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,300;0,400;0,500;1,400&family=Inter:wght@400;500;600&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Newsreader:ital,wght@0,300;0,400;0,500;1,400&family=Inter:wght@400;500;600&display=swap");
 
 @import "tailwindcss";
 
@@ -11,6 +11,10 @@ body {
 
 .font-serif-display {
   font-family: "Newsreader", serif;
+}
+
+.font-playfair {
+  font-family: "Playfair Display", serif;
 }
 
 /* Main background */
