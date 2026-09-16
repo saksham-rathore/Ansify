@@ -1,3 +1,6 @@
+import { CreateAccountButton } from "@/components/button";
+import Footer from "@/components/Footer";
+
 export default function SignUp() {
   return (
     <div className="min-h-screen bg-white flex flex-col">
@@ -29,7 +32,7 @@ export default function SignUp() {
             type="button"
             className="w-full flex items-center justify-center gap-2 border border-neutral-200 rounded-lg py-3 text-sm text-neutral-800 hover:bg-neutral-50 transition-colors mt-3"
           >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
               <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
             </svg>
             Sign up with X
@@ -74,19 +77,11 @@ export default function SignUp() {
             By signing up you agree to our{" "}
             <a href="#" className="text-neutral-900 font-medium hover:underline">
               Terms of Service
-            </a>
+            </a>  
             .
           </p>
 
-          <button
-            type="submit"
-            className="w-full flex items-center justify-center gap-2 bg-neutral-800 hover:bg-neutral-900 text-white rounded-lg py-3 text-sm font-medium transition-colors"
-          >
-            Create account
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M5 12h14M13 6l6 6-6 6" />
-            </svg>
-          </button>
+          <CreateAccountButton />
 
           <p className="text-center text-sm text-neutral-500 mt-6">
             Already have an account?{" "}
@@ -97,13 +92,7 @@ export default function SignUp() {
         </div>
       </main>
 
-      <footer className="flex items-center justify-between px-8 py-6 text-sm text-neutral-400">
-        <span>© 2026 make.design</span>
-        <div className="flex gap-6">
-          <a href="#" className="hover:text-neutral-600">Privacy</a>
-          <a href="#" className="hover:text-neutral-600">Terms</a>
-        </div>
-      </footer>
+      <Footer />  
     </div>
   );
 }
