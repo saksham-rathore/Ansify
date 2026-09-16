@@ -1,7 +1,35 @@
+"use client";
+
 import { CreateAccountButton } from "@/components/button";
 import Footer from "@/components/Footer";
+import { useEffect, useState } from "react";
 
 export default function SignUp() {
+  const [form, setform] = useState({
+    username: "",
+    email: "",
+    password: "",
+  });
+
+  const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+
+    try {
+      const response = await fetch("http://localhost:3000/sign-up", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(form),
+      });
+
+      const data = await response.json();
+
+      console.log(data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
   return (
     <div className="min-h-screen bg-white flex">
       <div className="flex-1 flex flex-col min-w-0">
@@ -194,12 +222,16 @@ export default function SignUp() {
             </div>
 
             <input
+              value={form.username}
+              onChange={(e) => setform({ ...form, username: e.target.value })}
               type="text"
               placeholder="Username"
               className="w-full border border-neutral-200 rounded-xl py-3.5 px-4 text-base text-neutral-900 placeholder:text-neutral-400 mb-4 focus:outline-none focus:border-neutral-400"
             />
 
             <input
+              value={form.email}
+              onChange={(e) => setform({ ...form, email: e.target.value })}
               type="email"
               placeholder="Email"
               className="w-full border border-neutral-200 rounded-xl py-3.5 px-4 text-base text-neutral-900 placeholder:text-neutral-400 mb-4 focus:outline-none focus:border-neutral-400"
@@ -207,11 +239,13 @@ export default function SignUp() {
 
             <div className="relative mb-5">
               <input
+                value={form.password}
+                onChange={(e) => setform({ ...form, password: e.target.value })}
                 type="password"
                 placeholder="Password"
                 className="w-full border border-neutral-200 rounded-xl py-3.5 px-4 pr-10 text-base text-neutral-900 placeholder:text-neutral-400 focus:outline-none focus:border-neutral-400"
               />
-              <button
+              <button 
                 type="button"
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600"
               >
@@ -283,8 +317,9 @@ export default function SignUp() {
               </a>
               .
             </p>
-
-            <CreateAccountButton />
+            <div onClick={handleSubmit}>
+              <CreateAccountButton />
+            </div>
 
             <p
               className="font-instrument-sans mt-6 text-center text-[13.5px] font-normal snip-c6f1-0"

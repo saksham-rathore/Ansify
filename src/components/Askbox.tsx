@@ -20,11 +20,10 @@ export default function AskBox() {
         delay: 0.55,
         ease: "easeOut",
       }}
-      className="ask-wrap max-w-xl mx-auto"
+      className="ask-wrap w-full max-w-xl mx-auto"
     >
       {/* Animated gradient border */}
-      <div className="ask-glow" />
-
+      
       <motion.div
         whileHover={{ y: -3 }}
         transition={{ duration: 0.25 }}
@@ -34,7 +33,7 @@ export default function AskBox() {
           bg-white/95
           backdrop-blur-xl
           border border-white/70
-          rounded-[26px]
+          rounded-[15px]
           px-6
           pt-5
           pb-4
