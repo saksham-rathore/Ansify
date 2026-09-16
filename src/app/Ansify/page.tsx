@@ -6,7 +6,7 @@ export default function Ansify() {
     <main className="stage">
       <div className="veil" />
 
-      <Navbar />
+      {/* <Navbar /> */}
       <Hero />
     </main>
   );
