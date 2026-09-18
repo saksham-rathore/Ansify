@@ -1,7 +1,38 @@
+"use client";
+
 import { SignInButton } from "@/components/button";
 import Footer from "@/components/Footer";
+import { useState } from "react";
 
 export default function SignIn() {
+  const [form, setform] = useState({
+    email: "",
+    password: "",
+  });
+
+  const handleSubmit = async (e: React.MouseEvent<HTMLDivElement>) => {
+    e.preventDefault();
+
+    try {
+      const response = await fetch("/api/sign-in", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ 
+          email: form.email,
+          password: form.password,
+        }),
+      });
+
+      const data = await response.json();
+
+      console.log(data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-white flex">
       <div className="flex-1 flex flex-col min-w-0">
@@ -194,6 +225,8 @@ export default function SignIn() {
             </div>
 
             <input
+              value={form.email}
+              onChange={(e) => setform({ ...form, email: e.target.value })}
               type="email"
               placeholder="Email"
               className="w-full border border-neutral-200 rounded-lg py-3 px-4 text-sm text-neutral-900 placeholder:text-neutral-400 mb-3 focus:outline-none focus:border-neutral-400"
@@ -201,6 +234,8 @@ export default function SignIn() {
 
             <div className="relative mb-4">
               <input
+                value={form.email}
+                onChange={(e) => setform({ ...form, email: e.target.value })}
                 type="password"
                 placeholder="Password"
                 className="w-full border border-neutral-200 rounded-lg py-3 px-4 pr-10 text-sm text-neutral-900 placeholder:text-neutral-400 focus:outline-none focus:border-neutral-400"
@@ -330,9 +365,9 @@ export default function SignIn() {
                 Forgot password?
               </button>
             </div>
-
-            <SignInButton />
-
+            <div onClick={handleSubmit}>
+              <SignInButton />
+            </div>
             <p
               className="font-instrument-sans mt-6 text-center text-[13.5px] font-normal snip-c6f1-0"
               style={{

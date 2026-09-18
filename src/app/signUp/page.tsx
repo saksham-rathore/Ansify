@@ -2,7 +2,7 @@
 
 import { CreateAccountButton } from "@/components/button";
 import Footer from "@/components/Footer";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 export default function SignUp() {
   const [form, setform] = useState({
@@ -21,7 +21,7 @@ export default function SignUp() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          name: form.username,
+          name: form.username,  
           email: form.email,
           password: form.password,
         }),
