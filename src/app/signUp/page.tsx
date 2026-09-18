@@ -11,7 +11,7 @@ export default function SignUp() {
     password: "",
   });
 
-  const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleSubmit = async (e: React.MouseEvent<HTMLDivElement>) => {
     e.preventDefault();
 
     try {
@@ -20,7 +20,11 @@ export default function SignUp() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(form),
+        body: JSON.stringify({
+          name: form.username,
+          email: form.email,
+          password: form.password,
+        }),
       });
 
       const data = await response.json();
@@ -245,7 +249,7 @@ export default function SignUp() {
                 placeholder="Password"
                 className="w-full border border-neutral-200 rounded-xl py-3.5 px-4 pr-10 text-base text-neutral-900 placeholder:text-neutral-400 focus:outline-none focus:border-neutral-400"
               />
-              <button 
+              <button
                 type="button"
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600"
               >
@@ -320,7 +324,6 @@ export default function SignUp() {
             <div onClick={handleSubmit}>
               <CreateAccountButton />
             </div>
-
             <p
               className="font-instrument-sans mt-6 text-center text-[13.5px] font-normal snip-c6f1-0"
               style={{
