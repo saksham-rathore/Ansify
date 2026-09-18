@@ -4,6 +4,10 @@ import { auth } from "../../../../lib/auth";
 export async function POST(req: Request) {
   try {
     const { name, email, password } = await req.json();
+    
+    if (!name || !email || !password) {
+      return NextResponse.json({ error: "All fields are required" }, { status: 500 });
+    }
 
     const result = await auth.api.signUpEmail({
       body: {
@@ -12,7 +16,7 @@ export async function POST(req: Request) {
         password,
         callbackURL: "/Ansify",
       },
-      // Pass the request if auth.api needs to read/set headers
+      headers: req.headers,
       asResponse: true,
     });
 

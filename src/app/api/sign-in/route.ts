@@ -11,6 +11,7 @@ export async function POST(req: Request) {
         password,
         callbackURL: "/Ansify",
       },
+      headers: req.headers,
       asResponse: true,
     });
 
