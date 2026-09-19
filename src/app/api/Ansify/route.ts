@@ -25,7 +25,7 @@ const FormSchema = z.object({
 
 const LlmResponseSchema = z.object({
   answer: z.string(),
-  followUps: z.array(z.string()).length(4),
+  followUps: z.array(z.string()).min(1).max(6).default([]),
 });
 
 const tavilyClient = tavily({ apiKey: process.env.TAVILY_API_KEY });
@@ -90,7 +90,7 @@ export async function POST(req: Request) {
 
     const completion = await client.chat.send({
       chatRequest: {
-        model: "openrouter/free",
+        model: "google/gemma-4-31b-it:free",
         responseFormat: { type: "json_object" },
         messages: [
           {
