@@ -35,7 +35,7 @@ const FormSchema = z.object({
 
 const LlmResponseSchema = z.object({
   answer: z.string(),
-  followUps: z.array(z.string()).default([]),
+  followUps: z.array(z.string()).length(4),
 });
 
 const tavilyClient = tavily({ apiKey: process.env.TAVILY_API_KEY });
@@ -64,6 +64,14 @@ export async function POST(req: Request) {
 
     const { Query, Image } = parsed.data;
 
+    // convert Image into URL (optional)
+    // const imageBuffer = Buffer.from(await Image.arrayBuffer());
+    // const base64Image = imageBuffer.toString("base64")
+
+    // const ImageDataUrl = 
+    // `data:${image?.type};base64,${base64Image}`
+
+
     const session = await auth.api.getSession({
       headers: req.headers,
     });
@@ -72,6 +80,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    
     // Web search to gather sources
     const WebSearchResponse = await tavilyClient.search(Query, {
       searchDepth: "advanced",
