@@ -8,27 +8,17 @@ import { client } from "@/lib/Openrouter";
 const MAX_IMAGE_SIZE = 5242880; // 5MB
 const MIN_IMAGE_SIZE = 1024; // 1KB
 
-const allowedImage = [
-  "image/jpeg",
-  "image/png",
-  "image/webp",
-];
+const allowedImage = ["image/jpeg", "image/png", "image/webp"];
 
 const FormSchema = z.object({
   Query: z.string().min(1, "Query is required").max(1000),
   Image: z
     .instanceof(File)
-    .refine(
-      (file) => file.size >= MIN_IMAGE_SIZE,
-      "Image is too small"
-    )
-    .refine(
-      (file) => file.size <= MAX_IMAGE_SIZE,
-      "Image is too large"
-    )
+    .refine((file) => file.size >= MIN_IMAGE_SIZE, "Image is too small")
+    .refine((file) => file.size <= MAX_IMAGE_SIZE, "Image is too large")
     .refine(
       (file) => allowedImage.includes(file.type),
-      "Unsupported image type"
+      "Unsupported image type",
     )
     .optional(),
 });
@@ -58,19 +48,17 @@ export async function POST(req: Request) {
     if (!parsed.success) {
       return NextResponse.json(
         { error: parsed.error.issues[0]?.message ?? "Query is required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     const { Query, Image } = parsed.data;
 
-    // convert Image into URL (optional)
-    // const imageBuffer = Buffer.from(await Image.arrayBuffer());
-    // const base64Image = imageBuffer.toString("base64")
-
-    // const ImageDataUrl = 
-    // `data:${image?.type};base64,${base64Image}`
-
+    let imageUrl = null;
+    if (Image) {
+      const buf = await Image.arrayBuffer();
+      imageUrl = `data:${Image.type};base64,${Buffer.from(buf).toString("base64")}`;
+    }
 
     const session = await auth.api.getSession({
       headers: req.headers,
@@ -80,7 +68,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    
     // Web search to gather sources
     const WebSearchResponse = await tavilyClient.search(Query, {
       searchDepth: "advanced",
@@ -112,7 +99,12 @@ export async function POST(req: Request) {
           },
           {
             role: "user",
-            content: prompt,
+            content: [
+              { type: "text" as const, text: prompt },
+              ...(imageUrl
+                ? [{ type: "image_url" as const, imageUrl: { url: imageUrl } }]
+                : []),
+            ],
           },
         ],
       },

@@ -6,11 +6,7 @@ export const SYSTEM_PROMPT = `
     You also need to return follow up questions to the user based on the question they have asked.
     Return ONLY valid JSON with no markdown, no code fences, no extra text.
 
-    When an image is provided:
-    - Analyze the image carefully.
-    - Use the user's query to understand what they want to know about the image.
-    - Do not assume information that cannot be determined from the image.
-    - Combine image information with relevant web sources when appropriate.
+    If an image is provided, analyze visible details first, then answer USER_QUERY using image + web results. Don't invent what's not visible.
 
     The response needs to be structured like this -
     {
