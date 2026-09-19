@@ -1,10 +1,12 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { CreateAccountButton } from "@/components/button";
 import Footer from "@/components/Footer";
 import { useState } from "react";
 
 export default function SignUp() {
+  const router = useRouter();
   const [form, setform] = useState({
     username: "",
     email: "",
@@ -21,13 +23,17 @@ export default function SignUp() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          name: form.username,  
+          name: form.username,
           email: form.email,
           password: form.password,
         }),
       });
 
       const data = await response.json();
+
+      if (response.ok) {
+        router.push("/Ansify-AI");
+      }
 
       console.log(data);
     } catch (error) {

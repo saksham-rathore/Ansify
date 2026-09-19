@@ -2,11 +2,35 @@ import { tavily } from "@tavily/core";
 import { auth } from "../../../../lib/auth";
 import { NextResponse } from "next/server";
 import { PROMPT_TEMPLATE, SYSTEM_PROMPT } from "@/prompt";
-import { z } from "zod";
+import { string, z } from "zod";
 import { client } from "@/lib/Openrouter";
 
-const QuerySchema = z.object({
+const MAX_IMAGE_SIZE = 5242880; // 5MB
+const MIN_IMAGE_SIZE = 1024; // 1KB
+
+const allowedImage = [
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+];
+
+const FormSchema = z.object({
   Query: z.string().min(1, "Query is required").max(1000),
+  Image: z
+    .instanceof(File)
+    .refine(
+      (file) => file.size >= MIN_IMAGE_SIZE,
+      "Image is too small"
+    )
+    .refine(
+      (file) => file.size <= MAX_IMAGE_SIZE,
+      "Image is too large"
+    )
+    .refine(
+      (file) => allowedImage.includes(file.type),
+      "Unsupported image type"
+    )
+    .optional(),
 });
 
 const LlmResponseSchema = z.object({
@@ -18,15 +42,27 @@ const tavilyClient = tavily({ apiKey: process.env.TAVILY_API_KEY });
 
 export async function POST(req: Request) {
   try {
-    const body = await req.json().catch(() => ({}));
+    const formData = await req.formData();
 
-    const parsed = QuerySchema.safeParse(body);
+    const query = formData.get("Query");
+    const rawImage = formData.get("Image");
+
+    const image =
+      rawImage instanceof File && rawImage.size > 0 ? rawImage : undefined;
+
+    const parsed = FormSchema.safeParse({
+      Query: query,
+      Image: image,
+    });
 
     if (!parsed.success) {
-      return NextResponse.json({ error: "Query is required" }, { status: 400 });
+      return NextResponse.json(
+        { error: parsed.error.issues[0]?.message ?? "Query is required" },
+        { status: 400 }
+      );
     }
 
-    const Query = parsed.data.Query;
+    const { Query, Image } = parsed.data;
 
     const session = await auth.api.getSession({
       headers: req.headers,

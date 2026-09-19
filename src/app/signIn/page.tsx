@@ -1,10 +1,12 @@
 "use client";
 
 import { SignInButton } from "@/components/button";
+import { useRouter } from "next/navigation";
 import Footer from "@/components/Footer";
 import { useState } from "react";
 
 export default function SignIn() {
+  const router = useRouter();
   const [form, setform] = useState({
     email: "",
     password: "",
@@ -19,13 +21,17 @@ export default function SignIn() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           email: form.email,
           password: form.password,
         }),
       });
 
       const data = await response.json();
+
+      if (response.ok) {
+        router.push("/Ansify-AI");
+      }
 
       console.log(data);
     } catch (error) {
@@ -234,8 +240,8 @@ export default function SignIn() {
 
             <div className="relative mb-4">
               <input
-                value={form.email}
-                onChange={(e) => setform({ ...form, email: e.target.value })}
+                value={form.password}
+                onChange={(e) => setform({ ...form, password: e.target.value })}
                 type="password"
                 placeholder="Password"
                 className="w-full border border-neutral-200 rounded-lg py-3 px-4 pr-10 text-sm text-neutral-900 placeholder:text-neutral-400 focus:outline-none focus:border-neutral-400"
