@@ -2,7 +2,7 @@ import { tavily } from "@tavily/core";
 import { auth } from "../../../../lib/auth";
 import { NextResponse } from "next/server";
 import { PROMPT_TEMPLATE, SYSTEM_PROMPT } from "@/prompt";
-import { string, z } from "zod";
+import { z } from "zod";
 import { client } from "@/lib/Openrouter";
 
 const MAX_IMAGE_SIZE = 5242880; // 5MB
@@ -54,18 +54,18 @@ export async function POST(req: Request) {
 
     const { Query, Image } = parsed.data;
 
-    let imageUrl = null;
-    if (Image) {
-      const buf = await Image.arrayBuffer();
-      imageUrl = `data:${Image.type};base64,${Buffer.from(buf).toString("base64")}`;
-    }
-
     const session = await auth.api.getSession({
       headers: req.headers,
     });
 
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    let imageUrl: string | null = null;
+    if (Image) {
+      const buf = await Image.arrayBuffer();
+      imageUrl = `data:${Image.type};base64,${Buffer.from(buf).toString("base64")}`;
     }
 
     // Web search to gather sources
@@ -83,10 +83,15 @@ export async function POST(req: Request) {
       score: r.score,
     }));
 
-    const prompt = PROMPT_TEMPLATE.replace(
+    let prompt = PROMPT_TEMPLATE.replace(
       "{{WEB_SEARCH_RESULTS}}",
       JSON.stringify(webSearchResults),
     ).replace("{{USER_QUERY}}", Query);
+
+    if (imageUrl) {
+      prompt +=
+        "\n\n## IMAGE\nAn image is attached as an image_url part. Analyze its visible details first.";
+    }
 
     const completion = await client.chat.send({
       chatRequest: {
@@ -102,7 +107,12 @@ export async function POST(req: Request) {
             content: [
               { type: "text" as const, text: prompt },
               ...(imageUrl
-                ? [{ type: "image_url" as const, imageUrl: { url: imageUrl } }]
+                ? [
+                    {
+                      type: "image_url" as const,
+                      imageUrl: { url: imageUrl, detail: "auto" as const },
+                    },
+                  ]
                 : []),
             ],
           },
