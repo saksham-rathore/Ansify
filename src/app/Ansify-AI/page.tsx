@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
 import {
   Search,
@@ -16,6 +16,7 @@ import {
   LogIn,
 } from "lucide-react";
 import { authClient } from "../../../lib/auth-client";
+import { trim } from "zod";
 
 type UserType = {
   name?: string | null;
@@ -24,48 +25,39 @@ type UserType = {
 };
 
 export default function AnsifyAIPage() {
-  const [recent, setrecent] = useState([]);
+  const [Query, setQuery] = useState("");
 
-  const [send, setsend] = useState<null | "">("");
+  const [messages, setmessages] = useState([]);
 
-  const [Askbox, setAskbox] = useState<null | "">("");
+  const [conversationId, setConversationId] = useState(null);
 
-  const [Loading, setLoading] = useState(true);
+  const [Loading, setLoading] = useState(false);
 
   const { data: session, isPending } = authClient.useSession();
 
-  const handleClick = () => {
-    useEffect(() => {
-      const fetchData = async () => {
-        try {
-          const response = await fetch("/api/Ansify");
+  const sendRef = useRef<HTMLInputElement>(null);
 
-          if (!response.ok) throw new Error("Network response was not ok");
+  const handleSubmit = async () => {
+    if (!Query.trim() || Loading) return;
 
-          const result = await response.json();
+    const useQuery = Query.trim();
 
-          setsend(result);
-        } catch (error) {
-          console.log(error);
-        } finally {
-          setLoading(false);
-        }
-      };
-      fetchData();
-    }, []);
-  };
+    setQuery("");
+    setLoading(true);
 
-  let ref = useRef(0);
-
-  function Clicky() {
-    ref.current = ref.send;
-    setsend;
+    try {
+      
+    } catch (error) {
+      console.log(error)
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
     <div className="flex h-screen w-full bg-[#f9f9f9] text-neutral-800 font-sans">
       <Sidebar user={session?.user} loading={isPending} />
-      <MainContent />
+      <MainContent sendRef={sendRef} SendQueryClick={SendQueryClick} />
     </div>
   );
 }
@@ -172,7 +164,13 @@ function Sidebar({
   );
 }
 
-function MainContent() {
+function MainContent({
+  sendRef,
+  SendQueryClick,
+}: {
+  sendRef: React.RefObject<HTMLInputElement | null>;
+  SendQueryClick: () => void;
+}) {
   return (
     <main className="flex-1 flex flex-col h-full overflow-hidden bg-white">
       {/* Top Bar */}
@@ -277,6 +275,7 @@ function MainContent() {
                 {/* Input */}
                 <input
                   type="text"
+                  ref={sendRef}
                   placeholder="Ask anything…"
                   className="
             font-serif-display
@@ -312,7 +311,7 @@ function MainContent() {
 
                   {/* Send */}
                   <motion.button
-                    onClick={Clicky}
+                    onClick={SendQueryClick}
                     id="sendBtn"
                     whileTap={{ scale: 0.9 }}
                     animate={{
