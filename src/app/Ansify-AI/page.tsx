@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useRef, useCallback } from "react";
+import React, { useState, useRef } from "react";
 import { motion } from "framer-motion";
 import {
   Search,
@@ -115,7 +115,13 @@ export default function AnsifyAIPage({
   return (
     <div className="flex h-screen w-full bg-[#f9f9f9] text-neutral-800 font-sans">
       <Sidebar user={session?.user} loading={isPending} />
-      <MainContent />
+      <MainContent
+        query={Query}
+        setQuery={setQuery}
+        loading={Loading}
+        onSubmit={handleSubmit}
+        sendRef={sendRef}
+      />
     </div>
   );
 }
@@ -222,7 +228,19 @@ function Sidebar({
   );
 }
 
-function MainContent() {
+function MainContent({
+  query,
+  setQuery,
+  loading,
+  onSubmit,
+  sendRef,
+}: {
+  query: string;
+  setQuery: React.Dispatch<React.SetStateAction<string>>;
+  loading: boolean;
+  onSubmit: () => void;
+  sendRef?: React.RefObject<HTMLInputElement | null>;
+}) {
   return (
     <main className="flex-1 flex flex-col h-full overflow-hidden bg-white">
       {/* Top Bar */}
@@ -327,7 +345,17 @@ function MainContent() {
                 {/* Input */}
                 <input
                   type="text"
-                  placeholder="Ask anything…"
+                  ref={sendRef}
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault();
+                      onSubmit();
+                    }
+                  }}
+                  disabled={loading}
+                  placeholder={loading ? "Searching..." : "Ask anything…"}
                   className="
             font-serif-display
             w-full
@@ -336,6 +364,7 @@ function MainContent() {
             text-[1.15rem]
             text-[#123055]
             outline-none
+            disabled:opacity-50
           "
                 />
 
@@ -343,7 +372,7 @@ function MainContent() {
                 <div className="flex items-center justify-between mt-4">
                   <div className="flex items-center gap-2">
                     {/* General */}
-                    <button className="quick-chip">
+                    <button className="quick-chip" type="button">
                       <svg
                         viewBox="0 0 24 24"
                         width="14"
@@ -363,9 +392,12 @@ function MainContent() {
                   {/* Send */}
                   <motion.button
                     id="sendBtn"
+                    type="button"
+                    onClick={onSubmit}
+                    disabled={loading || !query.trim()}
                     whileTap={{ scale: 0.9 }}
                     animate={{
-                      scale: [1, 1.06, 1],
+                      scale: loading ? 1 : [1, 1.06, 1],
                     }}
                     transition={{
                       duration: 1.8,
@@ -385,6 +417,8 @@ function MainContent() {
               items-center
               justify-center
               shadow-[0_6px_16px_rgba(28,111,201,0.4)]
+              disabled:opacity-50
+              disabled:cursor-not-allowed
             "
                   >
                     <svg
