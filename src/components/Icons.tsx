@@ -71,3 +71,64 @@ export function ArrowIcon() {
     </svg>
   );
 }
+
+export function AnsifyMark({ size = 15 }: { size?: number }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width={size}
+      height={size}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M12 3v3" />
+      <path d="M12 18v3" />
+      <path d="M4.2 4.2l2.1 2.1" />
+      <path d="M17.7 17.7l2.1 2.1" />
+      <path d="M3 12h3" />
+      <path d="M18 12h3" />
+      <path d="M4.2 19.8l2.1-2.1" />
+      <path d="M17.7 6.3l2.1-2.1" />
+    </svg>
+  );
+}
+
+export function ImagePlusIcon({ size = 14 }: { size?: number }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width={size}
+      height={size}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      aria-hidden="true"
+    >
+      <rect x="3" y="3" width="18" height="18" rx="3" />
+      <circle cx="8.5" cy="8.5" r="1.5" />
+      <path d="M21 15l-5-5L5 21" />
+    </svg>
+  );
+}
+
+export function BrainIcon({ size = 14 }: { size?: number }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width={size}
+      height={size}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M9 4a3 3 0 0 0-3 3 3 3 0 0 0-2 2.8A3 3 0 0 0 5 15.5 3 3 0 0 0 7 20a3 3 0 0 0 5 1.2A3 3 0 0 0 15 20a3 3 0 0 0 2-4.5 3 3 0 0 0 1-5.7A3 3 0 0 0 16 7a3 3 0 0 0-4-2.8A3 3 0 0 0 9 4z" />
+    </svg>
+  );
+}

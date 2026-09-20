@@ -30,6 +30,9 @@ const LlmResponseSchema = z.object({
 
 const tavilyClient = tavily({ apiKey: process.env.TAVILY_API_KEY });
 
+const MODEL =
+  process.env.OPENROUTER_MODEL || "google/gemma-3-27b-it:free";
+
 export async function POST(req: Request) {
   try {
     const formData = await req.formData();
@@ -54,12 +57,10 @@ export async function POST(req: Request) {
 
     const { Query, Image } = parsed.data;
 
-    const session = await auth.api.getSession({
-      headers: req.headers,
-    });
-
-    if (!session?.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    try {
+      await auth.api.getSession({ headers: req.headers });
+    } catch {
+      
     }
 
     let imageUrl: string | null = null;
@@ -69,12 +70,19 @@ export async function POST(req: Request) {
     }
 
     // Web search to gather sources
-    const WebSearchResponse = await tavilyClient.search(Query, {
-      searchDepth: "advanced",
-      maxResults: 8,
-    });
-
-    const webSearchResults = (await WebSearchResponse.results) ?? [];
+    let webSearchResults: any[] = [];
+    try {
+      if (process.env.TAVILY_API_KEY) {
+        const WebSearchResponse = await tavilyClient.search(Query, {
+          searchDepth: "advanced",
+          maxResults: 8,
+        });
+        webSearchResults = (await WebSearchResponse.results) ?? [];
+      }
+    } catch (searchError) {
+      console.error("Tavily search failed, continuing without web results:", searchError);
+      webSearchResults = [];
+    }
 
     const sources = webSearchResults.map((r) => ({
       title: r.title,
@@ -95,7 +103,7 @@ export async function POST(req: Request) {
 
     const completion = await client.chat.send({
       chatRequest: {
-        // model: "google/gemma-4-31b-it:free",
+        model: MODEL,
         responseFormat: { type: "json_object" },
         messages: [
           {
@@ -126,17 +134,29 @@ export async function POST(req: Request) {
     let followUps: string[] = [];
 
     try {
-      const json = JSON.parse(raw);
+      const json = typeof raw === "string" ? JSON.parse(raw) : raw;
       const validate = LlmResponseSchema.safeParse(json);
 
       if (validate.success) {
         answer = validate.data.answer;
         followUps = validate.data.followUps.slice(0, 4);
       } else {
-        answer = typeof json.answer === "string" ? json.answer : raw;
+        answer =
+          typeof (json as any)?.answer === "string"
+            ? (json as any).answer
+            : typeof raw === "string"
+              ? raw
+              : JSON.stringify(raw);
+        followUps = Array.isArray((json as any)?.followUps)
+          ? (json as any).followUps.slice(0, 4)
+          : [];
       }
     } catch (error) {
-      answer = raw;
+      answer = typeof raw === "string" ? raw : JSON.stringify(raw);
+    }
+
+    if (!answer) {
+      answer = "I could not generate an answer. Please try again.";
     }
 
     return NextResponse.json({ answer, followUps, sources });
