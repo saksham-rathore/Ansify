@@ -12,7 +12,7 @@ import {
   Bell,
   Mic,
   ArrowRight,
-  Menu,
+  Menu, 
   LogIn,
 } from "lucide-react";
 import { authClient } from "../../../lib/auth-client";
@@ -44,6 +44,8 @@ export default function AnsifyAIPage({
   const { data: session, isPending } = authClient.useSession();
 
   const sendRef = useRef<HTMLInputElement>(null);
+
+  const [Sessions, setSessions] = useState([])
 
   const handleSubmit = async () => {
     if (!Query.trim() || Loading) return;
