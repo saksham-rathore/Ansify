@@ -11,6 +11,7 @@
   "dependencies": {
     "@ai-sdk/groq": "^4.0.41",
     "@ai-sdk/react": "^4.0.102",
+    "@google/genai": "^2.23.0",
     "@openrouter/sdk": "^1.2.121",
     "@prisma/adapter-pg": "^7.10.0",
     "@prisma/client": "^7.10.0",
@@ -44,6 +45,7 @@
     "prisma@7.10.0": true,
     "@prisma/engines@7.10.0": true,
     "lucide-react@1.46.0": true,
-    "cloudinary@2.11.0": true
+    "cloudinary@2.11.0": true,
+    "@google/genai@2.23.0": true
   }
 }

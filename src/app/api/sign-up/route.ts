@@ -14,7 +14,7 @@ export async function POST(req: Request) {
         name,
         email,
         password,
-        callbackURL: "/Ansify",
+        callbackURL: "/Ansify-AI",
       },
       headers: req.headers,
       asResponse: true,

@@ -95,7 +95,7 @@ export async function POST(req: Request) {
 
     const completion = await client.chat.send({
       chatRequest: {
-        model: "google/gemma-4-31b-it:free",
+        // model: "google/gemma-4-31b-it:free",
         responseFormat: { type: "json_object" },
         messages: [
           {

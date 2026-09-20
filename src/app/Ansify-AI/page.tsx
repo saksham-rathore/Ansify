@@ -1,4 +1,7 @@
-import React from "react";
+"use client";
+
+import React, { useEffect, useState, useRef } from "react";
+import { motion } from "framer-motion";
 import {
   Search,
   PanelLeft,
@@ -6,24 +9,74 @@ import {
   Monitor,
   Library,
   ChevronDown,
-  User,
   Bell,
   Mic,
   ArrowRight,
   Menu,
+  LogIn,
 } from "lucide-react";
-import AskBox from "@/components/Askbox";
+import { authClient } from "../../../lib/auth-client";
+
+type UserType = {
+  name?: string | null;
+  email?: string | null;
+  image?: string | null;
+};
 
 export default function AnsifyAIPage() {
+  const [recent, setrecent] = useState([]);
+
+  const [send, setsend] = useState<null | "">("");
+
+  const [Askbox, setAskbox] = useState<null | "">("");
+
+  const [Loading, setLoading] = useState(true);
+
+  const { data: session, isPending } = authClient.useSession();
+
+  const handleClick = () => {
+    useEffect(() => {
+      const fetchData = async () => {
+        try {
+          const response = await fetch("/api/Ansify");
+
+          if (!response.ok) throw new Error("Network response was not ok");
+
+          const result = await response.json();
+
+          setsend(result);
+        } catch (error) {
+          console.log(error);
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchData();
+    }, []);
+  };
+
+  let ref = useRef(0);
+
+  function Clicky() {
+    ref.current = ref.send;
+    setsend;
+  }
+
   return (
     <div className="flex h-screen w-full bg-[#f9f9f9] text-neutral-800 font-sans">
-      <Sidebar />
+      <Sidebar user={session?.user} loading={isPending} />
       <MainContent />
     </div>
   );
 }
 
-function Sidebar() {
+function Sidebar({
+  user,
+  loading,
+}: {
+  user?: UserType | null;
+  loading: boolean;
+}) {
   return (
     <aside className="w-[260px] flex-shrink-0 border-r border-neutral-200 bg-[#f4f4f4] flex-col hidden md:flex">
       {/* Top Header */}
@@ -75,38 +128,6 @@ function Sidebar() {
             <Plus size={16} />
             <span>New</span>
           </button>
-          <button className="w-full flex items-center gap-3 px-2 py-2 text-sm text-neutral-600 hover:bg-neutral-200 rounded-lg transition-colors font-medium">
-            <Monitor size={16} />
-            <span>Computer</span>
-          </button>
-          <button className="w-full flex items-center gap-3 px-2 py-2 text-sm text-neutral-600 hover:bg-neutral-200 rounded-lg transition-colors font-medium">
-            <Library size={16} />
-            <span>Artifacts</span>
-          </button>
-        </div>
-
-        {/* Projects */}
-        <div>
-          <button className="w-full flex items-center justify-between px-2 py-1.5 text-xs text-neutral-500 font-medium hover:text-neutral-800 group transition-colors">
-            <span>Projects</span>
-            <ChevronDown
-              size={14}
-              className="opacity-0 group-hover:opacity-100 transition-opacity"
-            />
-          </button>
-          <div className="mt-1 px-2">
-            <div className="bg-white border border-neutral-200 rounded-lg p-3 shadow-sm">
-              <h4 className="text-xs font-semibold text-neutral-800 mb-1">
-                Organize and share your work
-              </h4>
-              <p className="text-[10px] text-neutral-500 mb-3 leading-tight">
-                Keep files, memory, and context together across sessions.
-              </p>
-              <button className="w-full bg-neutral-100 hover:bg-neutral-200 text-neutral-800 text-xs py-1.5 rounded-md transition-colors font-medium border border-neutral-200">
-                Create project
-              </button>
-            </div>
-          </div>
         </div>
 
         {/* Sessions */}
@@ -126,15 +147,19 @@ function Sidebar() {
       <div className="p-4 mt-auto border-t border-neutral-200">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-black flex items-center justify-center text-[11px] font-semibold text-white">
-              S
+            <div className="w-8 h-8 rounded-full bg-black flex items-center justify-center text-[11px] font-semibold text-white uppercase">
+              {user?.name
+                ? user.name.charAt(0)
+                : user?.email
+                  ? user.email.charAt(0)
+                  : "G"}
             </div>
             <div className="flex flex-col">
               <span className="text-[12px] font-semibold text-neutral-800 leading-tight">
-                samrathore51623
+                {user?.name || (loading ? "Loading..." : "Guest")}
               </span>
               <span className="text-[11px] font-medium text-neutral-500 leading-tight">
-                Free plan
+                {user?.email || (loading ? "" : "Not signed in")}
               </span>
             </div>
           </div>
@@ -211,8 +236,125 @@ function MainContent() {
           </div>
 
           {/* Search Box */}
-          <div className="w-full flex justify-center"> 
-            <AskBox />
+          <div className="w-full flex justify-center">
+            <motion.div
+              initial={{
+                opacity: 0,
+                y: 16,
+                scale: 0.97,
+              }}
+              animate={{
+                opacity: 1,
+                y: 0,
+                scale: 1,
+              }}
+              transition={{
+                duration: 0.6,
+                delay: 0.55,
+                ease: "easeOut",
+              }}
+              className="ask-wrap w-full max-w-xl mx-auto"
+            >
+              {/* Animated gradient border */}
+
+              <motion.div
+                whileHover={{ y: -3 }}
+                transition={{ duration: 0.25 }}
+                className="
+          ask
+          relative
+          bg-white/95
+          backdrop-blur-xl
+          border border-white/70
+          rounded-[15px]
+          px-6
+          pt-5
+          pb-4
+          text-left
+          shadow-[0_24px_55px_rgba(8,40,80,0.24)]
+        "
+              >
+                {/* Input */}
+                <input
+                  type="text"
+                  placeholder="Ask anything…"
+                  className="
+            font-serif-display
+            w-full
+            border-0
+            bg-transparent
+            text-[1.15rem]
+            text-[#123055]
+            outline-none
+          "
+                />
+
+                {/* Bottom controls */}
+                <div className="flex items-center justify-between mt-4">
+                  <div className="flex items-center gap-2">
+                    {/* General */}
+                    <button className="quick-chip">
+                      <svg
+                        viewBox="0 0 24 24"
+                        width="14"
+                        height="14"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.8"
+                      >
+                        <rect x="3" y="3" width="18" height="18" rx="3" />
+                        <circle cx="8.5" cy="8.5" r="1.5" />
+                        <path d="M21 15l-5-5L5 21" />
+                      </svg>
+                      General
+                    </button>
+                  </div>
+
+                  {/* Send */}
+                  <motion.button
+                    onClick={Clicky}
+                    id="sendBtn"
+                    whileTap={{ scale: 0.9 }}
+                    animate={{
+                      scale: [1, 1.06, 1],
+                    }}
+                    transition={{
+                      duration: 1.8,
+                      delay: 1.4,
+                      repeat: Infinity,
+                      repeatDelay: 1.6,
+                      ease: "easeInOut",
+                    }}
+                    aria-label="Ask"
+                    className="
+              w-10
+              h-10
+              rounded-full
+              bg-[#123055]
+              text-white
+              flex
+              items-center
+              justify-center
+              shadow-[0_6px_16px_rgba(28,111,201,0.4)]
+            "
+                  >
+                    <svg
+                      viewBox="0 0 24 24"
+                      width="16"
+                      height="16"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.4"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M12 19V5" />
+                      <path d="M5 12l7-7 7 7" />
+                    </svg>
+                  </motion.button>
+                </div>
+              </motion.div>
+            </motion.div>
           </div>
         </div>
       </div>
