@@ -16,7 +16,15 @@ import {
   LogIn,
 } from "lucide-react";
 import { authClient } from "../../../lib/auth-client";
-import { trim } from "zod";
+
+type chatInputProps = {
+  conversationId?: string | null;
+  onMessageSent?: (message: {
+    role: "user" | "assistant";
+    content: string;
+  }) => void;
+  onConversationCreated?: (id: string) => void;
+};
 
 type UserType = {
   name?: string | null;
@@ -24,12 +32,12 @@ type UserType = {
   image?: string | null;
 };
 
-export default function AnsifyAIPage() {
+export default function AnsifyAIPage({
+  conversationId,
+  onMessageSent,
+  onConversationCreated,
+}: chatInputProps) {
   const [Query, setQuery] = useState("");
-
-  const [messages, setmessages] = useState([]);
-
-  const [conversationId, setConversationId] = useState(null);
 
   const [Loading, setLoading] = useState(false);
 
@@ -40,24 +48,74 @@ export default function AnsifyAIPage() {
   const handleSubmit = async () => {
     if (!Query.trim() || Loading) return;
 
-    const useQuery = Query.trim();
+    const userQuery = Query.trim();
 
     setQuery("");
     setLoading(true);
 
     try {
-      
+      let currentConversationId = conversationId;
+
+      if (!currentConversationId) {
+        const conversationResponse = await fetch("/api/Ansify", {
+          method: "POST",
+          headers: {
+            "Content-type": "application/json",
+          },
+          body: JSON.stringify({
+            title: userQuery,
+          }),
+        });
+        if (!conversationResponse.ok) {
+          throw new Error("Failed to create conversation");
+        }
+
+        const conversation = await conversationResponse.json();
+
+        if (conversation?.id) {
+          currentConversationId = conversation.id;
+          onConversationCreated?.(conversation.id);
+        }
+      }
+
+      onMessageSent?.({
+        role: "user",
+        content: userQuery,
+      });
+
+      const formData = new FormData();
+
+      formData.append("Query", userQuery);
+      if (currentConversationId) {
+        formData.append("conversationId", currentConversationId);
+      }
+
+      const response = await fetch("/api/ask", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to get AI response");
+      }
+
+      const data = await response.json();
+
+      onMessageSent?.({
+        role: "assistant",
+        content: data.answer,
+      });
     } catch (error) {
-      console.log(error)
+      console.log(error);
     } finally {
       setLoading(false);
     }
-  }
+  };
 
   return (
     <div className="flex h-screen w-full bg-[#f9f9f9] text-neutral-800 font-sans">
       <Sidebar user={session?.user} loading={isPending} />
-      <MainContent sendRef={sendRef} SendQueryClick={SendQueryClick} />
+      <MainContent />
     </div>
   );
 }
@@ -164,13 +222,7 @@ function Sidebar({
   );
 }
 
-function MainContent({
-  sendRef,
-  SendQueryClick,
-}: {
-  sendRef: React.RefObject<HTMLInputElement | null>;
-  SendQueryClick: () => void;
-}) {
+function MainContent() {
   return (
     <main className="flex-1 flex flex-col h-full overflow-hidden bg-white">
       {/* Top Bar */}
@@ -275,7 +327,6 @@ function MainContent({
                 {/* Input */}
                 <input
                   type="text"
-                  ref={sendRef}
                   placeholder="Ask anything…"
                   className="
             font-serif-display
@@ -311,7 +362,6 @@ function MainContent({
 
                   {/* Send */}
                   <motion.button
-                    onClick={SendQueryClick}
                     id="sendBtn"
                     whileTap={{ scale: 0.9 }}
                     animate={{
